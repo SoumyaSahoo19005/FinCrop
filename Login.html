@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinCrop Agent Portal Login</title>
+    <!-- Remix Icon CDN for the eye icon functionality -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #10b981; /* Emerald 500 - FinCrop Brand */
+            --primary-color-alt: #059669; /* Emerald 600 */
+            --text-dark: #1e293b; /* Slate 800 */
+            --text-light: #475569; /* Slate 600 */
+            --input-border: #cbd5e1; /* Slate 300 */
+            --background-body: #f1f5f9; /* Slate 100 */
+            --background-card: #ffffff;
+            --max-width: 1120px;
+        }
+
+        /* --- BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+        }
+
+        /* --- LOGIN CARD LAYOUT --- */
+        .login {
+            background-color: var(--background-card);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Contains children border-radius */
+        }
+
+        .login__content {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile Default: Stacked */
+        }
+
+        /* --- IMAGE STYLES (Hidden on Small Screens) --- */
+        .login__img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Hide image by default */
+        }
+
+        /* --- FORM STYLES --- */
+        .login__form {
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .login__title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .login__title span {
+            color: var(--primary-color);
+            font-weight: 900;
+        }
+
+        .login__description {
+            font-size: 0.9375rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        /* --- INPUT GROUP --- */
+        .login__inputs {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .login__label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .login__box {
+            position: relative;
+        }
+
+        .login__input {
+            width: 100%;
+            padding: 1rem 1rem;
+            border: 2px solid var(--input-border);
+            border-radius: 0.75rem;
+            outline: none;
+            transition: border-color 0.3s;
+            color: var(--text-dark);
+        }
+
+        .login__input::placeholder {
+            color: var(--text-light);
+        }
+
+        .login__input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* --- PASSWORD EYE ICON --- */
+        .login__eye {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.25rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        /* --- CHECKBOX AND FORGOT --- */
+        .login__check {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .login__check-label {
+            position: relative;
+            cursor: pointer;
+            padding-left: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .login__check-input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Custom Checkbox Appearance */
+        .login__check-input + .login__check-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 1rem;
+            width: 1rem;
+            background-color: #eee;
+            border: 2px solid var(--input-border);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            line-height: 0.8;
+            color: var(--background-card);
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .login__check-input:checked + .login__check-icon {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Hide checkmark when unchecked */
+        .login__check-icon::before {
+            content: "\eacb"; /* ri-check-line from Remix Icon */
+            display: none;
+        }
+
+        .login__check-input:checked + .login__check-icon::before {
+            display: inline-block;
+        }
+
+        .login__forgot {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .login__forgot:hover {
+            color: var(--primary-color);
+        }
+
+        /* --- BUTTONS --- */
+        .login__buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .login__button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            border: none;
+        }
+
+        /* Primary Button: Log In */
+        .login__button {
+            background-color: var(--primary-color);
+            color: var(--background-card);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .login__button:hover {
+            background-color: var(--primary-color-alt);
+        }
+
+        /* Secondary Button: Sign Up */
+        .login__button-ghost {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            text-decoration: none; /* For the <a> tag usage */
+            line-height: 1; /* Align text vertically in a tag */
+            padding: calc(1rem - 2px); /* Adjust padding for border */
+        }
+
+        .login__button-ghost:hover {
+            background-color: var(--primary-color-alt);
+            color: var(--background-card);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .register-link a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        /* --- MEDIA QUERIES (Desktop Layout) --- */
+        @media screen and (min-width: 768px) {
+            .login {
+                max-width: 800px;
+            }
+
+            .login__content {
+                grid-template-columns: 1fr 1fr; /* Two columns for desktop */
+            }
+
+            .login__img {
+                display: block; /* Show image on desktop */
+            }
+            
+            .login__form {
+                padding: 3rem;
+            }
+
+            .login__buttons {
+                flex-direction: row; /* Keep buttons side-by-side */
+            }
+            
+            .register-link {
+                display: none; /* Move registration link to the ghost button */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login">
+            <div class="login__content">
+                <!-- Placeholder image for visual appeal -->
+                <img class="login__img" 
+                     src="https://placehold.co/400x600/10b981/ffffff?text=FinCrop+Farmer" 
+                     alt="Login image placeholder of a farmer" />
+
+                <!-- CONNECTED TO DASHBOARD -->
+                <!-- Note: Changed form action to index.html to align with previously generated file -->
+                <form class="login__form" action="FinCrop.html" method="GET">
+                    <div>
+                        <h1 class="login__title">
+                            <span>Welcome</span> Back
+                        </h1>
+
+                        <p class="login__description">
+                            Welcome! Please log in to the FinCrop Agent Portal to manage your portfolio.
+                        </p>
+                    </div>
+
+                    <div>
+                        <div class="login__inputs">
+                            <div>
+                                <label for="email" class="login__label">Email</label>
+                                <input class="login__input" type="email" id="email" name="email" placeholder="Enter your email address" value="agent@fincrop.com" required />
+                            </div>
+
+                            <div>
+                                <label for="password" class="login__label">Password</label>
+                                <div class="login__box">
+                                    <input class="login__input" type="password" id="password" name="password" placeholder="Enter your password" value="password123" required />
+                                    <!-- Remix Icon for toggling visibility -->
+                                    <i class="ri-eye-off-line login__eye" id="input-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="login__check">
+                            <label class="login__check-label" for="check">
+                                <input class="login__check-input" type="checkbox" id="check" />
+                                <i class="ri-check-line login__check-icon"></i>
+                                Remember me
+                            </label>
+                             <a class="login__forgot" href="#">Forgot Password?</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="login__buttons">
+                            <!-- This submits the form to index.html -->
+                            <button class="login__button" type="submit">Log In</button>
+
+                            <!-- This links to register.html (currently a placeholder) -->
+                            <a href="#" class="login__button login__button-ghost">Sign Up</a>
+                        </div>
+                        
+                        <!-- Visible on mobile -->
+                        <p class="register-link">Don't have an account? <a href="#">Register</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to toggle password visibility
+        const input = document.getElementById('password'),
+              icon = document.getElementById('input-icon');
+
+        if (input && icon) {
+            icon.addEventListener('click', () => {
+                // Change input type
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    // Change icon to 'eye'
+                    icon.classList.remove('ri-eye-off-line');
+                    icon.classList.add('ri-eye-line');
+                } else {
+                    input.type = 'password';
+                    // Change icon to 'eye-off'
+                    icon.classList.remove('ri-eye-line');
+                    icon.classList.add('ri-eye-off-line');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

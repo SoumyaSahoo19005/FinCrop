@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinCrop AI Decision Engine | Live Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Emerald (Growth/Agri) & Slate (Professional/Data) -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* Slate 100 */
+        }
+
+        /* Chart Container Styling - Mandatory Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%; /* Flexible within grid */
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+
+        .gauge-container {
+            height: 200px; /* Specific height for the semi-circle */
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-green-600">
+                        FinCrop
+                    </span>
+                    <span class="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400 uppercase tracking-wider">Credit Enabler Portal</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <span class="text-sm text-slate-400">Connected to: <span class="text-emerald-400 font-semibold">AgriStack API (Simulated)</span></span>
+                    <div class="h-8 w-8 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold">MD</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Context Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">AI Credit Assessment Engine</h1>
+            <p class="mt-2 text-slate-600 max-w-3xl">
+                This interactive tool demonstrates FinCrop's proprietary scoring model. By aggregating geospatial data, crop registries, and financial inputs, we generate a sanction decision in under 30 minutes. Use the controls below to simulate different farmer profiles.
+            </p>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: INPUTS (4 Columns) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Farmer Search Simulation -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-slate-800">1. Farmer Data Fetch</h2>
+                        <span class="text-xs font-mono bg-slate-100 text-slate-500 px-2 py-1 rounded">Source: AgriStack</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="Enter Farmer ID (e.g. AG-1029)" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <button onclick="randomizeInputs()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                            Fetch Data
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 italic">Click 'Fetch Data' to simulate pulling real-time land & crop records.</p>
+                </div>
+
+                <!-- Manual Controls -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h2 class="text-lg font-semibold text-slate-800 mb-6 border-b border-slate-100 pb-2">2. Profile Parameters</h2>
+                    
+                    <!-- Parameter 1: Land Size -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-700">Land Holding (Acres)</label>
+                            <span id="landValDisplay" class="text-sm font-bold text-emerald-700">2.0 Acres</span>
+                        </div>
+                        <input type="range" id="landInput" min="0" max="10" step="0.1" value="2.0" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-400 mt-1">
+                            <span>0</span>
+                            <span>5</span>
+                            <span>10+</span>
+                        </div>
+                        <p id="landFeedback" class="text-xs text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-100">
+                            Standard capacity farmer.
+                        </p>
+                    </div>
+
+                    <!-- Parameter 2: Crop Type -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Primary Crop Registry</label>
+                        <select id="cropInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
+                            <option value="standard">Wheat / Rice (Standard Value)</option>
+                            <option value="high">Vegetables / Fruits (High Value)</option>
+                            <option value="low">Coarse Grains (Low Value)</option>
+                        </select>
+                        <p id="cropFeedback" class="text-xs text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-100">
+                            Baseline market risk.
+                        </p>
+                    </div>
+
+                    <!-- Parameter 3: Loan Amount -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-700">Requested Loan</label>
+                            <span id="loanValDisplay" class="text-sm font-bold text-slate-900">₹ 7,00,000</span>
+                        </div>
+                        <input type="range" id="loanInput" min="10000" max="2000000" step="10000" value="700000" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-400 mt-1">
+                            <span>10k</span>
+                            <span>10L</span>
+                            <span>20L</span>
+                        </div>
+                    </div>
+
+                    <!-- Max Cap Display -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-blue-600 font-medium uppercase">Max Safe Limit</span>
+                            <span id="maxSafeLimit" class="text-sm font-bold text-blue-800">₹ 8,00,000</span>
+                        </div>
+                        <p class="text-[10px] text-blue-500 mt-1">Calculated as Land Size × ₹4,00,000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: VISUALIZATION (8 Columns) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Top Row: Score & Logic -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    
+                    <!-- Score Gauge -->
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide absolute top-4 left-6">FinCrop Credit Score</h3>
+                        
+                        <div class="chart-container gauge-container mt-6">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                        
+                        <!-- Score Text Overlay -->
+                        <div class="text-center -mt-10 mb-4 z-10">
+                            <h2 id="finalScoreDisplay" class="text-5xl font-extrabold text-slate-800">500</h2>
+                            <p class="text-sm text-slate-400 mt-1">Threshold: 550</p>
+                        </div>
+                        
+                        <div id="scoreBadge" class="px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-slate-100 text-slate-500">
+                            CALCULATING...
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Risk Factor Analysis</h3>
+                        <div class="chart-container">
+                            <canvas id="breakdownChart"></canvas>
+                        </div>
+                        <p class="text-xs text-center text-slate-400 mt-2">Base Score starts at 500</p>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Decision Card -->
+                <div id="decisionCard" class="bg-white rounded-xl shadow-lg border-l-8 border-slate-300 p-8 transition-all duration-500">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h2 class="text-2xl font-bold text-slate-800">Credit Decision</h2>
+                                <span id="decisionStatus" class="px-3 py-1 rounded text-sm font-bold bg-slate-100 text-slate-600">PENDING</span>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase">Recommendation</p>
+                                    <p id="decisionText" class="text-slate-700 text-lg leading-relaxed mt-1">
+                                        Adjust inputs to generate a decision.
+                                    </p>
+                                </div>
+                                
+                                <div id="disbursementPanel" class="hidden p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-xs text-emerald-600 font-bold uppercase">Sanctioned Amount</p>
+                                            <p id="sanctionedAmount" class="text-2xl font-bold text-emerald-800">₹ 0</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-emerald-600 font-bold uppercase">Method</p>
+                                            <div class="flex items-center gap-1 text-emerald-800 font-medium">
+                                                <span>🎟️ Digital Vouchers</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Box -->
+                        <div class="bg-slate-50 rounded-lg p-4 min-w-[200px] border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Model Metrics</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-600">Geo-Spatial Risk</span>
+                                    <span id="geoRiskVal" class="font-mono font-bold text-slate-800">--</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-600">Market Risk</span>
+                                    <span id="marketRiskVal" class="font-mono font-bold text-slate-800">--</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-slate-600">Leverage Risk</span>
+                                    <span id="finRiskVal" class="font-mono font-bold text-slate-800">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm text-slate-500">Team FinCrop &copy; 2025</p>
+            <div class="flex justify-center gap-4 mt-2 text-xs text-slate-400">
+                <span>Powered by AWS SageMaker</span>
+                <span>•</span>
+                <span>PostgreSQL RDS</span>
+                <span>•</span>
+                <span>K-DSS Geospatial</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // --- CONSTANTS FROM DECISION MODEL ---
+        const BASE_SCORE = 500;
+        const APPROVAL_THRESHOLD = 550;
+        const MAX_SAFE_LOAN_PER_ACRE = 400000;
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            landSize: 2.0,
+            cropType: 'standard',
+            loanAmount: 700000
+        };
+
+        // --- CHART INSTANCES ---
+        let scoreChartInstance = null;
+        let breakdownChartInstance = null;
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            landInput: document.getElementById('landInput'),
+            cropInput: document.getElementById('cropInput'),
+            loanInput: document.getElementById('loanInput'),
+            landDisplay: document.getElementById('landValDisplay'),
+            loanDisplay: document.getElementById('loanValDisplay'),
+            maxLimit: document.getElementById('maxSafeLimit'),
+            landFeedback: document.getElementById('landFeedback'),
+            cropFeedback: document.getElementById('cropFeedback'),
+            finalScore: document.getElementById('finalScoreDisplay'),
+            badge: document.getElementById('scoreBadge'),
+            decisionCard: document.getElementById('decisionCard'),
+            decisionStatus: document.getElementById('decisionStatus'),
+            decisionText: document.getElementById('decisionText'),
+            disbursePanel: document.getElementById('disbursementPanel'),
+            sanctionedAmt: document.getElementById('sanctionedAmount'),
+            metricGeo: document.getElementById('geoRiskVal'),
+            metricMkt: document.getElementById('marketRiskVal'),
+            metricFin: document.getElementById('finRiskVal')
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            initCharts();
+            attachListeners();
+            updateModel(); // Run initial calc
+        }
+
+        function attachListeners() {
+            // Use 'change' on range inputs to trigger logic slightly less frequently than 'input' for better performance
+            els.landInput.addEventListener('input', (e) => {
+                state.landSize = parseFloat(e.target.value);
+                updateModel();
+            });
+            els.cropInput.addEventListener('change', (e) => {
+                state.cropType = e.target.value;
+                updateModel();
+            });
+            els.loanInput.addEventListener('input', (e) => {
+                state.loanAmount = parseInt(e.target.value);
+                updateModel();
+            });
+        }
+
+        // --- CORE LOGIC (From fincrop_decision_model.md) ---
+        function updateModel() {
+            // 1. Update Input Displays
+            els.landDisplay.textContent = `${state.landSize.toFixed(1)} Acres`;
+            els.loanDisplay.textContent = formatCurrency(state.loanAmount);
+
+            // 2. Calculate Max Safe Loan
+            const maxSafeLoan = state.landSize * MAX_SAFE_LOAN_PER_ACRE;
+            els.maxLimit.textContent = formatCurrency(maxSafeLoan);
+
+            // 3. Calculate Score Adjustments
+            let landScore = 0;
+            let landText = "";
+            if (state.landSize >= 3) {
+                landScore = 100;
+                landText = "High-capacity farmer with high projected yield (+100)";
+            } else if (state.landSize >= 1) {
+                landScore = 50;
+                landText = "Standard capacity farmer (+50)";
+            } else {
+                landScore = 0;
+                landText = "Small holding, minimal yield buffer (+0)";
+            }
+            els.landFeedback.textContent = landText;
+
+            let cropScore = 0;
+            let cropText = "";
+            if (state.cropType === 'high') {
+                cropScore = 50;
+                cropText = "High Value Crop (Veg/Fruits). Higher return (+50)";
+            } else if (state.cropType === 'low') {
+                cropScore = -50;
+                cropText = "Low Value Crop. Lower repayment capacity (-50)";
+            } else {
+                cropScore = 0;
+                cropText = "Standard Value (Wheat/Rice). Neutral impact (+0)";
+            }
+            // For the feedback text, show the current selection
+            els.cropFeedback.textContent = els.cropInput.options[els.cropInput.selectedIndex].text + " selected. " + cropText.split('(')[0].trim() + ".";
+
+
+            let finScore = 0;
+            let finText = "";
+            if (state.loanAmount > (maxSafeLoan * 1.5)) { 
+                finScore = -100;
+                finText = "High Risk (> 1.5x Limit)";
+            } else if (state.loanAmount > maxSafeLoan) {
+                finScore = -50;
+                finText = "Moderate Risk (> Limit)";
+            } else {
+                finScore = 0;
+                finText = "Optimal Ratio";
+            }
+
+            // 4. Final Score Calc
+            const totalScore = BASE_SCORE + landScore + cropScore + finScore;
+            
+            // 5. Sanction Logic
+            const finalLoan = Math.min(state.loanAmount, maxSafeLoan);
+            const isApproved = totalScore >= APPROVAL_THRESHOLD && finalLoan > 0;
+
+            // --- UI UPDATES ---
+
+            // Update Text Metrics
+            els.finalScore.textContent = totalScore;
+            els.metricGeo.textContent = landScore > 0 ? `+${landScore}` : landScore;
+            els.metricMkt.textContent = cropScore > 0 ? `+${cropScore}` : cropScore;
+            els.metricFin.textContent = finScore;
+
+            // Update Decision Card
+            if (isApproved) {
+                // Approved UI
+                els.decisionCard.className = "bg-white rounded-xl shadow-lg border-l-8 border-emerald-500 p-8 transition-all duration-500";
+                els.decisionStatus.textContent = "APPROVED";
+                els.decisionStatus.className = "px-3 py-1 rounded text-sm font-bold bg-emerald-100 text-emerald-700";
+                els.badge.textContent = "LOW RISK PROFILE";
+                els.badge.className = "px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-600";
+                
+                els.decisionText.innerHTML = `Loan sanctioned via <strong>Digital Voucher Wallet</strong>. Automated repayment enabled through Mandi Integration.`;
+                
+                els.disbursePanel.classList.remove('hidden');
+                els.sanctionedAmt.textContent = formatCurrency(finalLoan);
+
+                // Update Chart Colors to Green
+                updateGaugeColor('#10b981'); // Emerald
+            } else {
+                // Rejected UI
+                els.decisionCard.className = "bg-white rounded-xl shadow-lg border-l-8 border-red-500 p-8 transition-all duration-500";
+                els.decisionStatus.textContent = "REJECTED";
+                els.decisionStatus.className = "px-3 py-1 rounded text-sm font-bold bg-red-100 text-red-700";
+                els.badge.textContent = "HIGH RISK DETECTED";
+                els.badge.className = "px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-red-100 text-red-600";
+
+                let rejectReason;
+                if (totalScore < APPROVAL_THRESHOLD && finalLoan <= 0) {
+                     rejectReason = "The risk profile is too low, and the final sanctionable amount is zero.";
+                } else if (totalScore < APPROVAL_THRESHOLD) {
+                    rejectReason = `The total credit score (${totalScore}) is below the minimum threshold of ${APPROVAL_THRESHOLD}.`;
+                } else if (state.loanAmount > maxSafeLoan) {
+                    rejectReason = "The requested loan amount greatly exceeds the safe limit for the farmer's land size and capacity.";
+                } else {
+                    rejectReason = "Application rejected due to an unfavorable risk profile (low score and/or low capacity).";
+                }
+                
+                els.decisionText.innerHTML = `${rejectReason} <br><span class='text-sm text-slate-500'>Recommendation: Reduce loan amount or diversify into higher-value crops to increase capacity.</span>`;
+                
+                els.disbursePanel.classList.add('hidden');
+
+                // Update Chart Colors to Red
+                updateGaugeColor('#ef4444'); // Red
+            }
+
+            // Update Charts Data
+            updateCharts(totalScore, landScore, cropScore, finScore);
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function formatCurrency(num) {
+            // Ensures two decimal places if needed for currency, but in this case, we use Indian Lakhs format.
+            return "₹ " + num.toLocaleString('en-IN');
+        }
+
+        function randomizeInputs() {
+            // Simulate random data fetch
+            state.landSize = parseFloat((Math.random() * 8 + 0.5).toFixed(1)); // 0.5 to 8.5 acres
+            const crops = ['standard', 'high', 'low'];
+            state.cropType = crops[Math.floor(Math.random() * crops.length)];
+            state.loanAmount = Math.floor(Math.random() * 150) * 10000 + 50000; // Random loan amount
+            
+            // Update Inputs UI
+            els.landInput.value = state.landSize;
+            els.cropInput.value = state.cropType;
+            els.loanInput.value = state.loanAmount;
+
+            // Trigger Logic
+            updateModel();
+        }
+
+        // --- CHART JS IMPLEMENTATION ---
+        function initCharts() {
+            // 1. Gauge Chart (Doughnut)
+            const ctxScore = document.getElementById('scoreChart').getContext('2d');
+            scoreChartInstance = new Chart(ctxScore, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Score', 'Remaining'],
+                    datasets: [{
+                        data: [500, 300], // Initial dummy
+                        backgroundColor: ['#10b981', '#e2e8f0'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    rotation: -90,
+                    circumference: 180,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+
+            // 2. Breakdown Chart (Bar)
+            const ctxBreak = document.getElementById('breakdownChart').getContext('2d');
+            breakdownChartInstance = new Chart(ctxBreak, {
+                type: 'bar',
+                data: {
+                    labels: ['Land Potential (+0 to +100)', 'Market Risk (-50 to +50)', 'Financial Risk (-100 to 0)'],
+                    datasets: [{
+                        label: 'Score Impact',
+                        data: [0, 0, 0],
+                        backgroundColor: ['#10b981', '#10b981', '#ef4444'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: true, color: '#f1f5f9' },
+                            suggestedMin: -100,
+                            suggestedMax: 150, // Max positive adjustment is 100+50
+                            ticks: {
+                                callback: function(value) {
+                                    return (value > 0 ? '+' : '') + value;
+                                }
+                            }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += (context.parsed.x > 0 ? '+' : '') + context.parsed.x;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateGaugeColor(color) {
+            scoreChartInstance.data.datasets[0].backgroundColor[0] = color;
+            scoreChartInstance.update();
+        }
+
+        function updateCharts(total, land, crop, fin) {
+            // Update Gauge
+            // Gauge max is set to 800, score range 350 to 700. 
+            const gaugeMax = 800;
+            const remaining = Math.max(0, gaugeMax - total);
+            
+            scoreChartInstance.data.datasets[0].data = [total, remaining];
+            scoreChartInstance.update();
+
+            // Update Breakdown Bar Chart
+            breakdownChartInstance.data.datasets[0].data = [land, crop, fin];
+            
+            // Dynamic Color for Bars
+            const colors = [
+                land >= 50 ? '#10b981' : (land > 0 ? '#34d399' : '#9ca3af'), // Land is usually positive or 0
+                crop > 0 ? '#34d399' : (crop < 0 ? '#ef4444' : '#9ca3af'),
+                fin >= 0 ? '#34d399' : '#ef4444'
+            ];
+            breakdownChartInstance.data.datasets[0].backgroundColor = colors;
+            breakdownChartInstance.update();
+        }
+
+        // Start app
+        window.onload = init;
+
+    </script>
+</body>
+</html>
