@@ -7,8 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Chosen Palette: Emerald (Growth/Agri) & Slate (Professional/Data) -->
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
@@ -58,7 +56,6 @@
 </head>
 <body class="text-slate-800">
 
-    <!-- Navbar -->
     <nav class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -76,10 +73,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Context Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-slate-900">AI Credit Assessment Engine</h1>
             <p class="mt-2 text-slate-600 max-w-3xl">
@@ -87,13 +82,10 @@
             </p>
         </div>
 
-        <!-- Dashboard Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- LEFT COLUMN: INPUTS (4 Columns) -->
             <div class="lg:col-span-4 space-y-6">
                 
-                <!-- Farmer Search Simulation -->
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-semibold text-slate-800">1. Farmer Data Fetch</h2>
@@ -108,11 +100,30 @@
                     <p class="text-xs text-slate-500 mt-2 italic">Click 'Fetch Data' to simulate pulling real-time land & crop records.</p>
                 </div>
 
-                <!-- Manual Controls -->
+                <div id="farmerProfileCard" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hidden">
+                    <h2 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Farmer Profile 🧑‍🌾</h2>
+                    <div class="flex items-start space-x-4">
+                        <div id="farmerPhoto" class="h-16 w-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-xl uppercase shrink-0 border-2 border-emerald-300">
+                            AB
+                        </div>
+                        <div class="flex-grow space-y-1">
+                            <p class="text-xl font-bold text-slate-900" id="profileName">--</p>
+                            <div class="grid grid-cols-2 gap-x-4">
+                                <p class="text-sm text-slate-600">Aadhar: <span id="profileAadhar" class="font-mono font-medium">--</span></p>
+                                <p class="text-sm text-slate-600">Loan Type: <span id="loanType" class="font-medium text-slate-800">KCC</span></p>
+                            </div>
+                            <p class="text-sm text-slate-600" id="profileAddress">--</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100">
+                        <p class="text-xs font-semibold text-slate-500 uppercase mb-1">Loan Purpose</p>
+                        <p class="text-sm text-slate-700" id="loanPurpose">Kharif Crop Production</p>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <h2 class="text-lg font-semibold text-slate-800 mb-6 border-b border-slate-100 pb-2">2. Profile Parameters</h2>
                     
-                    <!-- Parameter 1: Land Size -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-2">
                             <label class="text-sm font-medium text-slate-700">Land Holding (Acres)</label>
@@ -129,7 +140,6 @@
                         </p>
                     </div>
 
-                    <!-- Parameter 2: Crop Type -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-slate-700 mb-2">Primary Crop Registry</label>
                         <select id="cropInput" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white">
@@ -142,38 +152,42 @@
                         </p>
                     </div>
 
-                    <!-- Parameter 3: Loan Amount -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <label class="text-sm font-medium text-slate-700">Requested Loan</label>
                             <span id="loanValDisplay" class="text-sm font-bold text-slate-900">₹ 7,00,000</span>
                         </div>
-                        <input type="range" id="loanInput" min="10000" max="2000000" step="10000" value="700000" class="w-full">
+                        <input type="range" id="loanInput" min="10000" max="1000000" step="10000" value="700000" class="w-full">
                         <div class="flex justify-between text-xs text-slate-400 mt-1">
                             <span>10k</span>
+                            <span>5L</span>
                             <span>10L</span>
-                            <span>20L</span>
                         </div>
                     </div>
 
-                    <!-- Max Cap Display -->
-                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-blue-600 font-medium uppercase">Max Safe Limit</span>
-                            <span id="maxSafeLimit" class="text-sm font-bold text-blue-800">₹ 8,00,000</span>
+                    <div class="space-y-2">
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-blue-600 font-medium uppercase">Max Safe Limit</span>
+                                <span id="maxSafeLimit" class="text-sm font-bold text-blue-800">₹ 3,00,000</span>
+                            </div>
+                            <p class="text-[10px] text-blue-500 mt-1">Calculated as Land Size × ₹1,50,000</p>
                         </div>
-                        <p class="text-[10px] text-blue-500 mt-1">Calculated as Land Size × ₹4,00,000</p>
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-indigo-600 font-medium uppercase">PMFBY Premium (Total)</span>
+                                <span id="pmfbyPremium" class="text-sm font-bold text-indigo-800">₹ 4,500</span>
+                            </div>
+                            <p class="text-[10px] text-indigo-500 mt-1">1.5% of $KCC (Simulated based on crop type)</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: VISUALIZATION (8 Columns) -->
             <div class="lg:col-span-8 space-y-6">
                 
-                <!-- Top Row: Score & Logic -->
                 <div class="grid md:grid-cols-2 gap-6">
                     
-                    <!-- Score Gauge -->
                     <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden">
                         <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide absolute top-4 left-6">FinCrop Credit Score</h3>
                         
@@ -181,7 +195,6 @@
                             <canvas id="scoreChart"></canvas>
                         </div>
                         
-                        <!-- Score Text Overlay -->
                         <div class="text-center -mt-10 mb-4 z-10">
                             <h2 id="finalScoreDisplay" class="text-5xl font-extrabold text-slate-800">500</h2>
                             <p class="text-sm text-slate-400 mt-1">Threshold: 550</p>
@@ -192,7 +205,6 @@
                         </div>
                     </div>
 
-                    <!-- Breakdown Chart -->
                     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                         <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-4">Risk Factor Analysis</h3>
                         <div class="chart-container">
@@ -202,7 +214,6 @@
                     </div>
                 </div>
 
-                <!-- Bottom Row: Decision Card -->
                 <div id="decisionCard" class="bg-white rounded-xl shadow-lg border-l-8 border-slate-300 p-8 transition-all duration-500">
                     <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                         <div class="flex-1">
@@ -220,23 +231,28 @@
                                 </div>
                                 
                                 <div id="disbursementPanel" class="hidden p-4 bg-emerald-50 rounded-lg border border-emerald-100">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <p class="text-xs text-emerald-600 font-bold uppercase">Sanctioned Amount</p>
+                                    <h4 class="text-sm font-bold text-emerald-700 mb-3">Sanctioned Amount Breakdown (Blended)</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <p class="text-xs text-emerald-600 font-bold uppercase">Limit Approved</p>
                                             <p id="sanctionedAmount" class="text-2xl font-bold text-emerald-800">₹ 0</p>
                                         </div>
-                                        <div class="text-right">
-                                            <p class="text-xs text-emerald-600 font-bold uppercase">Method</p>
-                                            <div class="flex items-center gap-1 text-emerald-800 font-medium">
-                                                <span>🎟️ Digital Vouchers</span>
+                                        <div class="border-t border-emerald-200 pt-2 space-y-2">
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-emerald-700">1. Digital Vouchers (for inputs/machinery)</span>
+                                                <span id="voucherAmount" class="font-bold text-emerald-900">₹ 0</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-emerald-700">2. Direct Transfer (for labour/misc.)</span>
+                                                <span id="directTransferAmount" class="font-bold text-emerald-900">₹ 0</span>
                                             </div>
                                         </div>
                                     </div>
+                                    
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Stats Box -->
                         <div class="bg-slate-50 rounded-lg p-4 min-w-[200px] border border-slate-100">
                             <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Model Metrics</h4>
                             <div class="space-y-3">
@@ -261,7 +277,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-12 py-8">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <p class="text-sm text-slate-500">Team FinCrop &copy; 2025</p>
@@ -275,12 +290,23 @@
         </div>
     </footer>
 
-    <!-- LOGIC SCRIPT -->
     <script>
         // --- CONSTANTS FROM DECISION MODEL ---
         const BASE_SCORE = 500;
         const APPROVAL_THRESHOLD = 550;
-        const MAX_SAFE_LOAN_PER_ACRE = 400000;
+        // Adjusted Max Loan per Acre to make requested amounts more challenging/realistic
+        const MAX_SAFE_LOAN_PER_ACRE = 150000; 
+
+        // PMFBY Premium simulation: 1.5% for high/standard, 2.0% for low
+        const PREMIUM_RATE = {
+            'high': 0.015,
+            'standard': 0.015,
+            'low': 0.020
+        };
+        // Disbursement split: 60% Vouchers, 40% Direct Transfer
+        const VOUCHER_RATIO = 0.6;
+        const TRANSFER_RATIO = 0.4;
+
 
         // --- STATE MANAGEMENT ---
         let state = {
@@ -292,6 +318,14 @@
         // --- CHART INSTANCES ---
         let scoreChartInstance = null;
         let breakdownChartInstance = null;
+        
+        // --- FARMER DATA SIMULATION ---
+        const simulatedFarmers = [
+            { initials: 'AP', name: 'Anil B. Patil', aadhar: 'XXXX XXXX 1234', address: 'Plot 4, Village Talegaon, MH', land: 3.5, crop: 'high', loan: 450000, loanType: 'KCC', purpose: 'Vegetable Cultivation' },
+            { initials: 'RS', name: 'Rajesh S. Sharma', aadhar: 'XXXX XXXX 5678', address: 'Khasra 112, Dist. Kota, RJ', land: 1.2, crop: 'standard', loan: 200000, loanType: 'Term Loan', purpose: 'New Irrigation System' },
+            { initials: 'PV', name: 'Priya K. Verma', aadhar: 'XXXX XXXX 9012', address: 'Field 7, Block B, KA', land: 0.8, crop: 'low', loan: 100000, loanType: 'KCC', purpose: 'Coarse Grain Production' },
+            { initials: 'JS', name: 'Jagan Singh', aadhar: 'XXXX XXXX 3456', address: 'H. No. 56, Fatehpur, UP', land: 5.0, crop: 'standard', loan: 700000, loanType: 'KCC', purpose: 'Kharif Crop Production' }
+        ];
 
         // --- DOM ELEMENTS ---
         const els = {
@@ -312,7 +346,18 @@
             sanctionedAmt: document.getElementById('sanctionedAmount'),
             metricGeo: document.getElementById('geoRiskVal'),
             metricMkt: document.getElementById('marketRiskVal'),
-            metricFin: document.getElementById('finRiskVal')
+            metricFin: document.getElementById('finRiskVal'),
+            // NEW PROFILE ELEMENTS
+            profileCard: document.getElementById('farmerProfileCard'),
+            profileName: document.getElementById('profileName'),
+            profileAadhar: document.getElementById('profileAadhar'),
+            profileAddress: document.getElementById('profileAddress'),
+            farmerPhoto: document.getElementById('farmerPhoto'),
+            pmfbyPremium: document.getElementById('pmfbyPremium'),
+            voucherAmount: document.getElementById('voucherAmount'),
+            directTransferAmount: document.getElementById('directTransferAmount'),
+            loanType: document.getElementById('loanType'),
+            loanPurpose: document.getElementById('loanPurpose')
         };
 
         // --- INITIALIZATION ---
@@ -323,7 +368,7 @@
         }
 
         function attachListeners() {
-            // Use 'change' on range inputs to trigger logic slightly less frequently than 'input' for better performance
+            // Use 'input' for real-time slider updates
             els.landInput.addEventListener('input', (e) => {
                 state.landSize = parseFloat(e.target.value);
                 updateModel();
@@ -337,6 +382,13 @@
                 updateModel();
             });
         }
+        
+        // --- CALCULATION FUNCTIONS ---
+
+        function calculatePremium(loanAmount, cropType) {
+            const rate = PREMIUM_RATE[cropType] || PREMIUM_RATE['standard'];
+            return Math.round(loanAmount * rate);
+        }
 
         // --- CORE LOGIC (From fincrop_decision_model.md) ---
         function updateModel() {
@@ -348,7 +400,12 @@
             const maxSafeLoan = state.landSize * MAX_SAFE_LOAN_PER_ACRE;
             els.maxLimit.textContent = formatCurrency(maxSafeLoan);
 
-            // 3. Calculate Score Adjustments
+            // 3. Calculate PMFBY Premium
+            const premium = calculatePremium(state.loanAmount, state.cropType);
+            els.pmfbyPremium.textContent = formatCurrency(premium);
+
+            // 4. Calculate Score Adjustments (Land, Crop, Financial Risk)
+            
             let landScore = 0;
             let landText = "";
             if (state.landSize >= 3) {
@@ -375,29 +432,25 @@
                 cropScore = 0;
                 cropText = "Standard Value (Wheat/Rice). Neutral impact (+0)";
             }
-            // For the feedback text, show the current selection
             els.cropFeedback.textContent = els.cropInput.options[els.cropInput.selectedIndex].text + " selected. " + cropText.split('(')[0].trim() + ".";
 
 
             let finScore = 0;
-            let finText = "";
             if (state.loanAmount > (maxSafeLoan * 1.5)) { 
                 finScore = -100;
-                finText = "High Risk (> 1.5x Limit)";
             } else if (state.loanAmount > maxSafeLoan) {
                 finScore = -50;
-                finText = "Moderate Risk (> Limit)";
             } else {
                 finScore = 0;
-                finText = "Optimal Ratio";
             }
 
-            // 4. Final Score Calc
+            // 5. Final Score Calc
             const totalScore = BASE_SCORE + landScore + cropScore + finScore;
             
-            // 5. Sanction Logic
-            const finalLoan = Math.min(state.loanAmount, maxSafeLoan);
-            const isApproved = totalScore >= APPROVAL_THRESHOLD && finalLoan > 0;
+            // 6. Sanction Logic
+            const sanctionedAmount = Math.min(state.loanAmount, maxSafeLoan);
+            // Decision is REJECT if: Score is below threshold OR Requested loan > Max Safe Loan (over-leveraged risk is too high)
+            const isApproved = totalScore >= APPROVAL_THRESHOLD && state.loanAmount <= maxSafeLoan && sanctionedAmount > 0;
 
             // --- UI UPDATES ---
 
@@ -416,10 +469,16 @@
                 els.badge.textContent = "LOW RISK PROFILE";
                 els.badge.className = "px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-600";
                 
-                els.decisionText.innerHTML = `Loan sanctioned via <strong>Digital Voucher Wallet</strong>. Automated repayment enabled through Mandi Integration.`;
+                els.decisionText.innerHTML = `Loan sanctioned. Disbursement will be **blended** to ensure funds are utilized effectively for farming inputs.`;
                 
+                // Blended Disbursement Calculation
+                const voucherAmt = Math.round(sanctionedAmount * VOUCHER_RATIO);
+                const directTransferAmt = sanctionedAmount - voucherAmt;
+
                 els.disbursePanel.classList.remove('hidden');
-                els.sanctionedAmt.textContent = formatCurrency(finalLoan);
+                els.sanctionedAmt.textContent = formatCurrency(sanctionedAmount);
+                els.voucherAmount.textContent = formatCurrency(voucherAmt);
+                els.directTransferAmount.textContent = formatCurrency(directTransferAmt);
 
                 // Update Chart Colors to Green
                 updateGaugeColor('#10b981'); // Emerald
@@ -432,12 +491,10 @@
                 els.badge.className = "px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-red-100 text-red-600";
 
                 let rejectReason;
-                if (totalScore < APPROVAL_THRESHOLD && finalLoan <= 0) {
-                     rejectReason = "The risk profile is too low, and the final sanctionable amount is zero.";
-                } else if (totalScore < APPROVAL_THRESHOLD) {
+                if (totalScore < APPROVAL_THRESHOLD) {
                     rejectReason = `The total credit score (${totalScore}) is below the minimum threshold of ${APPROVAL_THRESHOLD}.`;
                 } else if (state.loanAmount > maxSafeLoan) {
-                    rejectReason = "The requested loan amount greatly exceeds the safe limit for the farmer's land size and capacity.";
+                    rejectReason = `The requested loan amount (${formatCurrency(state.loanAmount)}) **exceeds** the safe limit for the farmer's land capacity (${formatCurrency(maxSafeLoan)}).`;
                 } else {
                     rejectReason = "Application rejected due to an unfavorable risk profile (low score and/or low capacity).";
                 }
@@ -456,21 +513,39 @@
 
         // --- HELPER FUNCTIONS ---
         function formatCurrency(num) {
-            // Ensures two decimal places if needed for currency, but in this case, we use Indian Lakhs format.
+            // Uses Indian numbering system
             return "₹ " + num.toLocaleString('en-IN');
         }
 
+        function updateProfileDetails(farmer) {
+            els.profileCard.classList.remove('hidden');
+            els.profileName.textContent = farmer.name;
+            els.profileAadhar.textContent = farmer.aadhar;
+            els.profileAddress.textContent = farmer.address;
+            els.farmerPhoto.textContent = farmer.initials;
+            els.loanType.textContent = farmer.loanType;
+            els.loanPurpose.textContent = farmer.purpose;
+        }
+
         function randomizeInputs() {
-            // Simulate random data fetch
-            state.landSize = parseFloat((Math.random() * 8 + 0.5).toFixed(1)); // 0.5 to 8.5 acres
-            const crops = ['standard', 'high', 'low'];
-            state.cropType = crops[Math.floor(Math.random() * crops.length)];
-            state.loanAmount = Math.floor(Math.random() * 150) * 10000 + 50000; // Random loan amount
+            // Select a random farmer profile
+            const farmerIndex = Math.floor(Math.random() * simulatedFarmers.length);
+            const farmer = simulatedFarmers[farmerIndex];
+            
+            // Update state with selected farmer data
+            state.landSize = farmer.land;
+            state.cropType = farmer.crop;
+            state.loanAmount = farmer.loan;
             
             // Update Inputs UI
             els.landInput.value = state.landSize;
             els.cropInput.value = state.cropType;
+            els.loanInput.min = 10000; // Reset min
+            els.loanInput.max = 1000000; // Set max for this demo
             els.loanInput.value = state.loanAmount;
+
+            // Update Profile Card
+            updateProfileDetails(farmer);
 
             // Trigger Logic
             updateModel();
@@ -578,7 +653,7 @@
             const colors = [
                 land >= 50 ? '#10b981' : (land > 0 ? '#34d399' : '#9ca3af'), // Land is usually positive or 0
                 crop > 0 ? '#34d399' : (crop < 0 ? '#ef4444' : '#9ca3af'),
-                fin >= 0 ? '#34d399' : '#ef4444'
+                fin >= 0 ? '#34d399' : '#ef4444' // Financial risk should be green if neutral/positive, red if negative
             ];
             breakdownChartInstance.data.datasets[0].backgroundColor = colors;
             breakdownChartInstance.update();
